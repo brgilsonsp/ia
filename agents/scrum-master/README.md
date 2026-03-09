@@ -52,7 +52,7 @@ No agent may recommend or assume technologies outside this stack.
 
 | Agent | Role | Status |
 |-------|------|--------|
-| [`prd_pipeline_orchestrator.md`](./prd_pipeline_orchestrator.md) | Scrum Master — Orchestrates the full PRD → Estimated Backlog pipeline (4 stages, validation gates, human-in-the-loop) | Ready |
+| [`prd_pipeline_orchestrator.md`](./prd_pipeline_orchestrator.md) | Scrum Master — PRD Analysis & Refinement Orchestrator: analyzes PRD quality, validates technical feasibility, and refines into an estimated backlog (4 stages, validation gates, human-in-the-loop) | Ready |
 | *(coming soon)* | Sprint Planner | Planned |
 | *(coming soon)* | Daily Standup Facilitator | Planned |
 | *(coming soon)* | Backlog Manager | Planned |
