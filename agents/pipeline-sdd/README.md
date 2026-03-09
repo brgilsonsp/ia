@@ -114,11 +114,11 @@ This repository (`pipeline-sdd/`) is a **reference and template library**. The f
 
 ```
 pipeline-sdd/
-├── README.md                              ← This file
-├── CLAUDE.md                              ← Project instructions for Claude
-├── pipeline-agentes-sdd-claude-code.md   ← Original pipeline guide and architecture
-├── scope_precision_anti-hallucination.md ← Guardrails specification
-└── prompts/                               ← Production-ready agent prompt files
+├── README.md                                   ← This file
+├── CLAUDE.md                                   ← Project instructions for Claude (embeds guardrails)
+├── pipeline-agentes-sdd-claude-code.md        ← Original pipeline guide and architecture
+├── prd-analysis-refinement-orchestrator.md    ← Agent: Scrum Master orquestrador de análise de PRD
+└── prompts/                                    ← Production-ready agent prompt files
     ├── 01-requirements-analyst.md
     ├── 02-system-architect.md
     ├── 03-task-planner.md
@@ -433,7 +433,7 @@ Gates are intentional interruptions. The pipeline does not advance without your 
 
 ## Guardrails — Anti-Hallucination and Scope Control
 
-All 10 agents embed the same guardrail system, defined in `scope_precision_anti-hallucination.md`. These rules govern agent behavior at every step.
+All 10 agents embed the same guardrail system, defined in `CLAUDE.md`. These rules govern agent behavior at every step.
 
 ### Information Classification
 
