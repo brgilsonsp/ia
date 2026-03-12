@@ -6,9 +6,30 @@ Skills para IA com perfil de **PM (Product Manager)**, **AN (Arquiteto de Negóc
 
 ## Skills disponíveis
 
-> Este diretório ainda não contém skills. As skills serão adicionadas conforme criadas.
+### `pm_prd_reviewer.md`
 
-Quando populado, cada skill seguirá a estrutura abaixo.
+**Persona:** Alex — Senior PM especialista em qualidade de PRD para pipeline SDD.
+
+**Foco principal:** Revisar um PRD e certificar que está pronto para ser processado pela pipeline Spec-Driven Development.
+
+**O que verifica:**
+- Requisitos são exclusivamente de negócio (sem detalhes de implementação)
+- PRD é agnóstico a tecnologia e arquitetura
+- Linguagem ubíqua — termos do domínio usados de forma consistente e sem ambiguidade
+- Coesão — requisitos atômicos, completos, sem contradições e com escopo delimitado
+
+**Saída:** Relatório estruturado com veredicto (`APROVADO` / `APROVADO COM AVISOS` / `REPROVADO`), lista de bloqueadores e avisos com localização precisa no documento.
+
+**Quando usar:**
+- Antes de encaminhar um PRD para a pipeline SDD
+- Quando o PRD foi escrito por alguém sem experiência em SDD e pode conter decisões técnicas implícitas
+- Para auditar PRDs existentes que serão reutilizados em novos ciclos de desenvolvimento
+
+**Idioma de resposta:** Português Brasileiro
+
+---
+
+Quando populado com novas skills, cada uma seguirá a estrutura abaixo.
 
 ---
 
