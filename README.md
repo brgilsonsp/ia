@@ -3,12 +3,15 @@
 A collection of prompts for use in other repositories or Claude Code profiles.
 Nothing here is installed — this is a source library.
 
+> **Claude Code users:** a `CLAUDE.md` at the repo root loads behavioral conventions and the active guardrails automatically on every session.
+
 ---
 
 ## Structure
 
 ```
 ia/
+├── CLAUDE.md         # Claude Code conventions + active guardrails for this repo
 ├── prompts/          # standalone prompts for direct LLM use (no agentic context)
 ├── agents/           # prompts to install as .claude/agents/ (subagents)
 ├── skills/           # prompts to install as .claude/skills/ (manual triggers)
@@ -86,6 +89,7 @@ skills/
 ## `guardrails/`
 
 Reusable guardrail content. Copy or reference from any agent or skill prompt.
+The root `CLAUDE.md` embeds these rules and applies them to all work in this repo.
 
 | File | Description |
 |------|-------------|
