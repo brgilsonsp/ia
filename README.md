@@ -1,6 +1,7 @@
-# AI Prompts & Guardrails
+# AI Prompts Repository
 
-A collection of reusable prompts and guardrails for LLM-based workflows, focused on quality, precision, and anti-hallucination.
+A collection of prompts for use in other repositories or Claude Code profiles.
+Nothing here is installed — this is a source library.
 
 ---
 
@@ -8,74 +9,119 @@ A collection of reusable prompts and guardrails for LLM-based workflows, focused
 
 ```
 ia/
-├── prompts/
-│   ├── roles/
-│   │   └── prompt_engineering.md          # Prompt Engineer specialist role
-│   ├── product/
-│   │   └── product_manager_digital_service.md  # Product Manager (PRD co-creation)
-│   ├── translator/
-│   │   └── translator_br_to_en.md         # Brazilian Portuguese → American English translator
-│   └── validate_text/
-│       ├── validate_pt_br_general_text.md     # General pt-BR text reviewer (any domain)
-│       └── validate_pt_br_technical_text.md   # Technical pt-BR text reviewer (Software Architecture)
-└── guardrails/
-    ├── scope_precision_anti-hallucination.md  # Reusable guardrail block
-    └── validate_english_prompt/
-        ├── validate_english.py            # Claude Code hook — grammar check on user prompts
-        ├── CLAUDE.md                      # Hook configuration for Claude Code CLI
-        ├── settings.json                  # Hook settings
-        └── LEIA-ME.md                     # Setup instructions (pt-BR)
+├── prompts/          # standalone prompts for direct LLM use (no agentic context)
+├── agents/           # prompts to install as .claude/agents/ (subagents)
+├── skills/           # prompts to install as .claude/skills/ (manual triggers)
+├── guardrails/       # reusable guardrail blocks (embed into agents or skills)
+├── hooks/            # Claude Code hook tools (Python scripts + config)
+└── docs/             # reference guides
 ```
 
 ---
 
-## Prompts
+## `prompts/`
 
-### `roles/prompt_engineering.md`
-A **Prompt Engineer** specialist that helps design, analyze, and optimize prompts for any LLM. Works in consultative mode: diagnoses existing prompts, proposes improvements with justification, and follows a structured workflow (Discovery → Analysis → Construction → Validation).
+Standalone prompts for direct conversation use. Not agents, not skills.
 
-### `product/product_manager_digital_service.md`
-A **Product Manager** that co-creates PRDs (Product Requirements Documents) using Socratic questioning. Focuses strictly on *what* the product does and *why* it exists — no technology decisions. Outputs PRD content in Brazilian Portuguese; all conversation in English.
-
-### `translator/translator_br_to_en.md`
-A **professional translator** for Brazilian Portuguese → American English. Handles idiomatic expressions, cultural adaptations, false cognates, and registers (formal, informal, technical). Strictly one-directional; will not accept reverse translation requests.
-
-### `validate_text/validate_pt_br_general_text.md`
-A **multidisciplinary review panel** for pt-BR texts across any domain. Reviews through six specialist lenses: linguistic quality, structure, factual accuracy, UX writing, purpose alignment, and QA. Outputs a severity-classified report and a revised version.
-
-### `validate_text/validate_pt_br_technical_text.md`
-Same review panel, specialized for **Software Architecture and technical digital products** (ADRs, RFCs, READMEs, runbooks, API docs, PRDs). Includes a dedicated Software Architect Reviewer and Product Manager Reviewer role.
+| Path | Description |
+|------|-------------|
+| `roles/prompt_engineering.md` | Prompt Engineer specialist |
+| `product/product_manager_digital_service.md` | Product Manager — PRD co-creation via Socratic method |
+| `translator/translator_br_to_en.md` | Brazilian Portuguese → American English translator |
+| `consult/consult_fundador_b2b_saas_brasil.md` | Strategy consulting for Brazilian B2B SaaS founders |
+| `validate_text/validate_pt_br_general_text.md` | Multi-lens reviewer for general pt-BR text |
+| `validate_text/validate_pt_br_technical_text.md` | Multi-lens reviewer for technical pt-BR text |
+| `build_mvp/step_01…06` | 6-step pipeline for MVP specification (sequential prompts) |
 
 ---
 
-## Guardrails
+## `agents/`
 
-### `scope_precision_anti-hallucination.md`
-A standalone guardrail block covering:
-- Prohibition of data fabrication
-- Mandatory uncertainty handling with classification labels
-- Permission and obligation to ask clarifying questions
-- Scope control (no unsolicited expansion)
-- Prohibition of implicit assumptions and authority claims
-- Coherence and consistency checks
+Prompts formatted for Claude Code subagents. Install to `.claude/agents/` in a project.
 
-This block can be embedded into any custom prompt.
+```
+agents/
+└── pipelines/
+    ├── sdd/                        # Spec-Driven Development pipeline
+    │   ├── 01-requirements-analyst.md
+    │   ├── 02-system-architect.md
+    │   ├── 03-task-planner.md
+    │   ├── 04-orchestrator.md
+    │   ├── 05-backend-developer.md
+    │   ├── 06-frontend-developer.md
+    │   ├── 07-db-specialist.md
+    │   ├── 08-test-engineer.md
+    │   ├── 09-code-reviewer.md
+    │   └── 10-integration-agent.md
+    └── build-product/              # PRD creation pipeline
+        ├── prd_template.md
+        └── pipeline_prd_from_scratch/
+            └── prd-creation-orchestrator.md
+```
 
-### `validate_english_prompt/`
-A **Claude Code hook** that intercepts user prompts before they reach Claude, validates the English grammar, and blocks the prompt with feedback if errors are found. Designed for A2/B1 level English learners.
+---
 
-- Requires `ANTHROPIC_API_KEY` in environment
-- Uses `claude-haiku-4-5-20251001` for fast, low-cost validation
-- See `LEIA-ME.md` for setup instructions
+## `skills/`
+
+Prompts formatted for Claude Code skills. Install to `.claude/skills/` in a project or profile.
+Triggered manually with `/skill-name`.
+
+```
+skills/
+├── roles/
+│   ├── prompt_engineering_agent.md   # Prompt engineering for agentic contexts
+│   └── prompt_engineering_llm.md     # Prompt engineering for general LLM use
+├── consult/
+│   ├── ceo_especialista_mvp_agent.md               # CEO advisor — MVP scope & prioritization
+│   └── consult_fundador_b2b_saas_brasil_agent.md   # B2B SaaS strategy — Brazilian market
+├── guardrails/
+│   └── agent_sentinel.md             # Audits agent prompts against 10 guardrails
+└── pipelines/
+    └── sdd/
+        └── prd-analysis-refinement-orchestrator.md  # Entry point for SDD pipeline
+```
+
+---
+
+## `guardrails/`
+
+Reusable guardrail content. Copy or reference from any agent or skill prompt.
+
+| File | Description |
+|------|-------------|
+| `scope_precision_anti-hallucination.md` | 10 canonical rules: no fabrication, uncertainty labels, scope control, etc. |
+| `CLAUDE.md` | Mandatory behavioral conventions for agents using these guardrails |
+
+---
+
+## `hooks/`
+
+Claude Code hook tools — not prompts. Install to `.claude/` settings.
+
+| Path | Description |
+|------|-------------|
+| `validate_english_prompt/` | Pre-prompt hook that validates English grammar (A2/B1 learner support) |
+
+See `hooks/validate_english_prompt/LEIA-ME.md` for setup instructions.
+
+---
+
+## `docs/`
+
+Reference guides.
+
+| File | Description |
+|------|-------------|
+| `skill_agent_doc.md` | When to use agents vs skills, how to create and configure each |
+| `pipeline-agentes-sdd-claude-code.md` | SDD pipeline architecture and methodology |
 
 ---
 
 ## Design Principles
 
-All prompts in this repository follow these conventions:
+All prompts follow these conventions:
 
-- **Explicit guardrails** — every prompt defines what the model must *never* do
+- **Explicit guardrails** — every prompt defines what the model must never do
 - **Certainty labeling** — outputs classify information as `[User-Provided Fact]`, `[Hypothesis]`, `[Estimate]`, etc.
 - **Ask before assume** — models stop and ask when context is ambiguous or insufficient
 - **Scope discipline** — models do not expand into unsolicited areas
-- **Iterative workflow** — prompts define a step-by-step process with validation checkpoints

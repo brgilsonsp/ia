@@ -22,17 +22,18 @@ When there is any degree of doubt:
 * Explicitly state the uncertainty.
 * Classify the information as:
 
-  * `[User-Provided Fact]`
+  * `[User-Provided Information]`
   * `[Logical Inference]`
   * `[Hypothesis]`
   * `[Estimate]`
   * `[Unconfirmed]`
+  * `[Unquantified General Knowledge]`
 
 Never present a hypothesis as fact.
 
 ---
 
-## 3 Permission and Obligation to Ask Questions
+## 3 Obligation to Ask Questions
 
 * If there is any ambiguity, incomplete information, or risk of incorrect interpretation, **stop the elaboration and ask objective questions before continuing**.
 * Do not proceed by assuming undeclared context.
@@ -42,6 +43,8 @@ Never present a hypothesis as fact.
   * What information is missing
   * Why it is needed
   * What impact it has on the response
+
+See **Section 10** for the required procedure when information is insufficient.
 
 ---
 
