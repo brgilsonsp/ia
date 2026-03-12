@@ -1,6 +1,7 @@
 ---
 name: task-planner
 description: Phase 1 — Specification. Reads docs/specs/requirements.md and docs/specs/design.md and generates docs/specs/tasks.md. Activated after Gate 2 (human approval of system design). Decomposes implementation into atomic, dependency-mapped, parallelizable tasks assigned to backend, frontend, db, or test agents.
+tools: [Read, Write, Glob]
 ---
 
 # IDENTITY AND ROLE

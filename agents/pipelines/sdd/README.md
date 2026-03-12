@@ -110,26 +110,27 @@ This combines two advantages: **quality through structured approval**, and **spe
 
 ## Directory Structure
 
-This repository (`pipeline-sdd/`) is a **reference and template library**. The files here are copied into your target project, not used directly.
+This directory (`agents/pipelines/sdd/`) is a **reference and template library**. The files here are copied into your target project, not used directly.
 
 ```
-pipeline-sdd/
-├── README.md                                   ← This file
-├── CLAUDE.md                                   ← Project instructions for Claude (embeds guardrails)
-├── pipeline-agentes-sdd-claude-code.md        ← Original pipeline guide and architecture
-├── prd-analysis-refinement-orchestrator.md    ← Agent: Scrum Master orquestrador de análise de PRD
-└── prompts/                                    ← Production-ready agent prompt files
-    ├── 01-requirements-analyst.md
-    ├── 02-system-architect.md
-    ├── 03-task-planner.md
-    ├── 04-orchestrator.md
-    ├── 05-backend-developer.md
-    ├── 06-frontend-developer.md
-    ├── 07-db-specialist.md
-    ├── 08-test-engineer.md
-    ├── 09-code-reviewer.md
-    └── 10-integration-agent.md
+agents/pipelines/sdd/
+├── README.md                      ← This file
+├── CLAUDE.md                      ← Project instructions for Claude (embeds guardrails)
+├── 01-requirements-analyst.md
+├── 02-system-architect.md
+├── 03-task-planner.md
+├── 04-orchestrator.md
+├── 05-backend-developer.md
+├── 06-frontend-developer.md
+├── 07-db-specialist.md
+├── 08-test-engineer.md
+├── 09-code-reviewer.md
+└── 10-integration-agent.md
 ```
+
+The PRD analysis/refinement orchestrator (Scrum Master) lives in `skills/pipelines/sdd/prd-analysis-refinement-orchestrator.md` — it is a skill, not a subagent.
+
+The full pipeline architecture guide lives in `docs/pipeline-agentes-sdd-claude-code.md`.
 
 When you start a new project, your target project structure will look like this:
 
@@ -492,13 +493,11 @@ git init
 ### Step 2 — Copy the agent prompt files
 
 ```bash
-# Copy all prompts from this repository to your project's agents directory
-cp /path/to/pipeline-sdd/prompts/*.md my-project/.claude/agents/
+# Copy all agent prompts to your project's agents directory
+cp /path/to/agents/pipelines/sdd/*.md my-project/.claude/agents/
 
-# Rename files to remove the numeric prefix (Claude Code uses the filename's `name` frontmatter)
-# The files are already named correctly in .claude/agents/ after renaming:
-# 01-requirements-analyst.md → requirements-analyst.md
-# etc.
+# The numeric prefix is just for ordering in this repo — Claude Code identifies agents
+# by the `name` field in each file's YAML frontmatter, not by filename.
 ```
 
 ### Step 3 — Create your CLAUDE.md

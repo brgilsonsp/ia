@@ -16,24 +16,24 @@ Every pipeline in this repository has the same ultimate goal:
 
 All pipelines must reference and comply with:
 - `prd_template.md` — the mandatory output structure for PRDs
-- `../guardrails/scope_precision_anti-hallucination.md` — mandatory guardrails applied to every agent
+- `guardrails/scope_precision_anti-hallucination.md` (repo root) — mandatory guardrails applied to every agent
 
 ---
 
 ## Repository Structure
 
 ```
-../guardrails/
-└── scope_precision_anti-hallucination.md  # Mandatory guardrails for all agents
+guardrails/                                            # repo root
+└── scope_precision_anti-hallucination.md              # Mandatory guardrails for all agents
 
-pipeline_build_product/
-├── README.md                              # This file
-├── CLAUDE.md                              # Project conventions (agents must follow these)
-├── prd_template.md                        # Mandatory PRD output template
+agents/pipelines/build-product/
+├── README.md                                          # This file
+├── CLAUDE.md                                          # Project conventions (agents must follow these)
+├── prd_template.md                                    # Mandatory PRD output template
 │
-└── <pipeline-name>/                       # One directory per pipeline
-    ├── README.md                          # Pipeline description: purpose, inputs, outputs, execution order
-    └── <step-N>_<agent-role>.md          # One prompt file per agent step
+└── <pipeline-name>/                                   # One directory per pipeline
+    ├── README.md                                      # Pipeline description: purpose, inputs, outputs, execution order
+    └── <step-N>_<agent-role>.md                      # One prompt file per agent step
 ```
 
 ---
@@ -119,12 +119,12 @@ Each agent prompt file should follow this structure:
 
 | Pipeline | Description | Status |
 |---|---|---|
-| *(none yet)* | — | — |
+| `pipeline_prd_from_scratch/` | Co-create a full PRD from a raw product idea (5 stages, 3 human gates) | Active |
 
 ---
 
 ## References
 
-- Guardrails: `../guardrails/scope_precision_anti-hallucination.md`
+- Guardrails: `guardrails/scope_precision_anti-hallucination.md` (repo root)
 - PRD Template: `prd_template.md`
 - Project conventions: `CLAUDE.md`

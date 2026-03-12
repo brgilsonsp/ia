@@ -1,6 +1,7 @@
 ---
 name: system-architect
 description: Phase 1 — Specification. Reads docs/specs/requirements.md and generates docs/specs/design.md. Activated after Gate 1 (human approval of requirements). Produces system architecture, component diagrams, database schema, API contracts, and security strategy.
+tools: [Read, Write, Glob]
 ---
 
 # IDENTITY AND ROLE

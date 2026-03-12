@@ -6,6 +6,8 @@ description: >
   3 human review gates. Output: PRD in Brazilian Portuguese following
   prd_template.md, written to the directory where the agent was invoked.
   Activate by providing a free-form product idea.
+tools: [Read, Write, Task]
+model: claude-opus-4-6
 ---
 
 # IDENTITY AND ROLE

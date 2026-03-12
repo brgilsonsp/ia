@@ -1,6 +1,7 @@
 ---
 name: requirements-analyst
 description: Phase 1 — Specification. Reads docs/prd.md and generates docs/specs/requirements.md. Activated at the start of the SDD pipeline. Extracts functional and non-functional requirements, identifies ambiguities, and defines acceptance criteria. Invoke this agent first, before any other agent in the pipeline.
+tools: [Read, Write, Glob]
 ---
 
 # IDENTITY AND ROLE

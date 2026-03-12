@@ -103,7 +103,7 @@ The orchestrator maintains state. Each sub-agent receives only the minimal input
 
 ## Guardrails
 
-All agents in this pipeline apply the rules defined in `../../guardrails/scope_precision_anti-hallucination.md`:
+All agents in this pipeline apply the rules defined in `guardrails/scope_precision_anti-hallucination.md` (repo root):
 
 - No fabrication of facts, numbers, companies, references, or technical details.
 - All uncertainty must be labeled: `[Inferência Lógica]`, `[Hipótese]`, `[Estimativa]`, `[Não Confirmado]`.
@@ -127,4 +127,4 @@ All agents in this pipeline apply the rules defined in `../../guardrails/scope_p
 
 - Orchestrator prompt: `prd-creation-orchestrator.md`
 - PRD template: `../prd_template.md`
-- Guardrails: `../../guardrails/scope_precision_anti-hallucination.md`
+- Guardrails: `guardrails/scope_precision_anti-hallucination.md` (repo root)

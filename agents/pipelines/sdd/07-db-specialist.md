@@ -1,6 +1,7 @@
 ---
 name: db-specialist
 description: Phase 2 — Parallel Implementation (subagent). Creates database migrations, seeds, and optimized queries. Activated by the Orchestrator for tasks tagged [db] in docs/specs/tasks.md. Operates in isolation — reads the schema from design.md, creates reversible migrations, commits, and reports. Never spawns other agents.
+tools: [Read, Write, Edit, Bash, Glob, Grep]
 ---
 
 # IDENTITY AND ROLE

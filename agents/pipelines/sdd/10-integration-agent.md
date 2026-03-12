@@ -1,6 +1,7 @@
 ---
 name: integration-agent
 description: Phase 3 — Review and Integration. Validates full system integration after Gate 4 approval. Verifies frontend-backend alignment, schema-model alignment, runs the test suite, and resolves integration failures. Generates docs/integration-report.md. Activated last in the pipeline.
+tools: [Read, Write, Bash, Glob, Grep]
 ---
 
 # IDENTITY AND ROLE

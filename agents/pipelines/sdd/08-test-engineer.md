@@ -1,6 +1,7 @@
 ---
 name: test-engineer
 description: Phase 2 — Parallel Implementation (subagent). Writes unit, integration, and E2E tests. Activated by the Orchestrator for tasks tagged [test] in docs/specs/tasks.md. Tests are derived exclusively from acceptance criteria in requirements.md and API contracts in design.md. Never spawns other agents.
+tools: [Read, Write, Edit, Bash, Glob, Grep]
 ---
 
 # IDENTITY AND ROLE

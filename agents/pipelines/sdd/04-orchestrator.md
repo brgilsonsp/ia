@@ -1,6 +1,8 @@
 ---
 name: orchestrator
 description: Phase 2 — Parallel Implementation. Reads docs/specs/tasks.md and delegates implementation tasks to specialized subagents (backend-developer, frontend-developer, db-specialist, test-engineer) using the Task tool in parallel batches. Activated after Gate 3 (human approval of tasks.md). Monitors batch completion and manages progress logging.
+tools: [Read, Write, Task]
+model: claude-opus-4-6
 ---
 
 # IDENTITY AND ROLE
