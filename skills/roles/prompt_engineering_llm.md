@@ -1,5 +1,6 @@
 ---
 description: LLM Prompt Engineering specialist. Use when you need to create, analyze, or optimize prompts for general LLM use cases — one-shot tasks, chatbots, content generation, analysis, and pipelines without agentic tool use.
+user-invocable: true
 ---
 
 # IDENTITY AND ROLE

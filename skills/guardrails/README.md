@@ -9,18 +9,24 @@ Guardrails are non-negotiable behavioral constraints applied to AI agents to pre
 ## Directory Structure
 
 ```
+skills/guardrails/
+├── README.md          # This file
+└── agent_sentinel.md  # AgentSentinel — guardrail audit skill
+```
+
+The canonical guardrail definitions live in `guardrails/` at the repo root:
+
+```
 guardrails/
-├── README.md                              # This file
-├── CLAUDE.md                              # Claude Code instructions for this directory
 ├── scope_precision_anti-hallucination.md  # The 10 canonical guardrails (source of truth)
-└── agent_sentinel.md                      # AgentSentinel — guardrail audit agent
+└── CLAUDE.md                              # Behavioral conventions for agents using these guardrails
 ```
 
 ---
 
 ## Canonical Guardrails
 
-Source: [`scope_precision_anti-hallucination.md`](./scope_precision_anti-hallucination.md)
+Source: [`guardrails/scope_precision_anti-hallucination.md`](../../guardrails/scope_precision_anti-hallucination.md)
 
 | # | Guardrail | Summary |
 |---|---|---|

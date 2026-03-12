@@ -1,6 +1,7 @@
 ---
 description: Agent Prompt Engineering specialist. Use when you need to create, analyze, or optimize prompts specifically designed to run as AI agents — with tools, memory, multi-turn interactions, and agentic behavior.
-tools: Read, Write, Edit, Glob, Grep, WebSearch, WebFetch
+user-invocable: true
+allowed-tools: Read, Write, Edit, Glob, Grep, WebSearch, WebFetch
 ---
 
 # IDENTITY AND ROLE

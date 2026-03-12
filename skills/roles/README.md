@@ -42,20 +42,20 @@ Both prompts can be installed at **user profile level** (available in all projec
 
 ```bash
 # Agent specialist
-cp prompt_engineering_agent.md ~/.claude/agents/prompt_engineering_agent.md
+cp prompt_engineering_agent.md ~/.claude/skills/prompt_engineering_agent.md
 
 # LLM specialist
-cp prompt_engineering_llm.md ~/.claude/agents/prompt_engineering_llm.md
+cp prompt_engineering_llm.md ~/.claude/skills/prompt_engineering_llm.md
 ```
 
 ### Project level — scoped to one project
 
 ```bash
 # Run from inside the project root
-mkdir -p .claude/agents
+mkdir -p .claude/skills
 
-cp /path/to/prompt_engineering_agent.md .claude/agents/prompt_engineering_agent.md
-cp /path/to/prompt_engineering_llm.md   .claude/agents/prompt_engineering_llm.md
+cp /path/to/prompt_engineering_agent.md .claude/skills/prompt_engineering_agent.md
+cp /path/to/prompt_engineering_llm.md   .claude/skills/prompt_engineering_llm.md
 ```
 
 ---
@@ -78,28 +78,11 @@ Build a prompt for an agent that reviews PRDs and writes a quality report
 I need a prompt to classify customer support tickets — no tools, just a single API call
 ```
 
-### Option 2 — Invoke explicitly via the Agent tool (in code or orchestrators)
+### Option 2 — Invoke explicitly by name
 
-```python
-# Example using the Anthropic SDK with Claude Code agent tool
-{
-  "type": "tool_use",
-  "name": "Agent",
-  "input": {
-    "subagent_type": "prompt_engineering_agent",
-    "prompt": "Analyze and rewrite this prompt: ./agents/my_agent.md"
-  }
-}
 ```
-
-### Option 3 — Reference in another agent prompt
-
-```markdown
-# SUBAGENT DELEGATION
-
-When the user requests prompt creation or diagnosis, delegate to:
-- subagent_type: `prompt_engineering_agent` — for agentic prompts
-- subagent_type: `prompt_engineering_llm` — for general LLM prompts
+/prompt_engineering_agent Analyze and rewrite this prompt: ./agents/my_agent.md
+/prompt_engineering_llm Build a prompt to classify customer support tickets
 ```
 
 ---
@@ -116,7 +99,7 @@ Does the prompt involve tools, autonomous execution, or multi-turn state?
 
 ## File Reference
 
-| File | Type | Folder for global install |
+| File | Invocation | Folder for global install |
 |---|---|---|
-| `prompt_engineering_agent.md` | Claude Code subagent | `~/.claude/agents/` |
-| `prompt_engineering_llm.md` | Claude Code subagent | `~/.claude/agents/` |
+| `prompt_engineering_agent.md` | `/prompt_engineering_agent` | `~/.claude/skills/` |
+| `prompt_engineering_llm.md` | `/prompt_engineering_llm` | `~/.claude/skills/` |
