@@ -14,7 +14,8 @@ agents/
 │   ├── sdd/             # Spec-Driven Development — 10 agents for building web apps
 │   └── build-product/   # PRD creation pipeline — co-creates a full PRD from a raw idea
 └── tools/
-    └── pr_description_writer.md   # Generates PR title and description from the current branch diff
+    ├── pr_description_writer.md   # Generates PR title and description from the current branch diff
+    └── feature-branch.md          # Creates a feature branch locally and pushes it to the remote with upstream
 ```
 
 ---
@@ -50,6 +51,7 @@ Claude Code automatically reads all files in `.claude/agents/` and makes them av
 | Agent | Description |
 |-------|-------------|
 | [`tools/pr_description_writer.md`](tools/pr_description_writer.md) | Generates a PR title and description from the diff between the current branch and `main`; writes to `message_pr.md` and ensures it is listed in `.gitignore` |
+| [`tools/feature-branch.md`](tools/feature-branch.md) | Asks for the feature branch name and base branch; validates both inputs and repository state (remote exists, base branch exists, feature branch does not already exist); creates the local branch from `origin/<base-branch>`; pushes to origin and sets the upstream tracking reference |
 
 ---
 
