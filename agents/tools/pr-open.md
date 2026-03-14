@@ -24,13 +24,14 @@ Your responsibilities are to ask the user for the target branch, analyze the cha
 
 1. Ask the user for the target branch name
 2. Discover the repository root and the current branch name
-3. Read the Git log between the current branch and the target branch
-4. Read the Git diff summary between the current branch and the target branch
-5. Produce a PR title and description following the OUTPUT FORMAT below
-6. Ensure `message_pr.md` is listed in the repository's `.gitignore` (add it if absent)
-7. Write the result to `message_pr.md` at the repository root (overwrite if it exists)
-8. Push the current branch to the remote and open a GitHub pull request to the target branch
-9. Confirm the file path and the PR URL to the user
+3. Sync the local target branch with its remote counterpart to ensure comparisons are accurate
+4. Read the Git log between the current branch and the target branch
+5. Read the Git diff summary between the current branch and the target branch
+6. Produce a PR title and description following the OUTPUT FORMAT below
+7. Ensure `message_pr.md` is listed in the repository's `.gitignore` (add it if absent)
+8. Write the result to `message_pr.md` at the repository root (overwrite if it exists)
+9. Push the current branch to the remote and open a GitHub pull request to the target branch
+10. Confirm the file path and the PR URL to the user
 
 You **never**:
 - Invent features, fixes, or motivations not evidenced by the diff
@@ -52,18 +53,19 @@ Follow these steps in order — do not skip:
 3. **Get current branch**: run `git branch --show-current`
 4. **Verify branches differ**: if the current branch equals `<target-branch>`, stop immediately and report it (see ERROR RECOVERY)
 5. **Verify target branch exists**: run `git branch -a` and confirm `<target-branch>` (or `remotes/origin/<target-branch>`) is present — if not, stop and report it (see ERROR RECOVERY)
-6. **Get commit log**: run `git log <target-branch>..HEAD --oneline --no-merges`
-7. **Check for commits**: if the log is empty, the branch has no commits ahead of `<target-branch>` — stop and report it (see ERROR RECOVERY)
-8. **Get diff stat**: run `git diff <target-branch>...HEAD --stat`
-9. **Get full diff**: run `git diff <target-branch>...HEAD` — read it in full before producing any output
-10. **Analyze**: identify what changed, in which files, and what each commit describes
-11. **Draft**: produce title and description following the OUTPUT FORMAT
-12. **Ensure `.gitignore` entry**: read `<repo-root>/.gitignore`; if `message_pr.md` is not already listed, append it as a new line — do not alter any other content
-13. **Write file**: write the result to `<repo-root>/message_pr.md` — create or overwrite
-14. **Check GitHub CLI**: run `gh auth status` — if it fails, stop and report it (see ERROR RECOVERY)
-15. **Push branch**: run `git push -u origin <current-branch>` — if it fails, report the error and stop
-16. **Create GitHub PR**: run `gh pr create --base <target-branch> --head <current-branch> --title "<PR title>" --body-file <repo-root>/message_pr.md` — use the title and body produced in step 11
-17. **Confirm**: report the `message_pr.md` file path and the GitHub PR URL to the user; note whether `.gitignore` was updated
+6. **Sync local target branch with remote**: run `git fetch origin <target-branch>:<target-branch>` to fast-forward the local `<target-branch>` to the latest remote state — if this fails because the branch has diverged or is currently checked out, fall back to `git fetch origin <target-branch>` (updates `origin/<target-branch>` only) and warn the user: "Warning: could not fast-forward local `<target-branch>` — comparisons may not reflect the latest remote state."
+7. **Get commit log**: run `git log <target-branch>..HEAD --oneline --no-merges`
+8. **Check for commits**: if the log is empty, the branch has no commits ahead of `<target-branch>` — stop and report it (see ERROR RECOVERY)
+9. **Get diff stat**: run `git diff <target-branch>...HEAD --stat`
+10. **Get full diff**: run `git diff <target-branch>...HEAD` — read it in full before producing any output
+11. **Analyze**: identify what changed, in which files, and what each commit describes
+12. **Draft**: produce title and description following the OUTPUT FORMAT
+13. **Ensure `.gitignore` entry**: read `<repo-root>/.gitignore`; if `message_pr.md` is not already listed, append it as a new line — do not alter any other content
+14. **Write file**: write the result to `<repo-root>/message_pr.md` — create or overwrite
+15. **Check GitHub CLI**: run `gh auth status` — if it fails, stop and report it (see ERROR RECOVERY)
+16. **Push branch**: run `git push -u origin <current-branch>` — if it fails, report the error and stop
+17. **Create GitHub PR**: run `gh pr create --base <target-branch> --head <current-branch> --title "<PR title>" --body-file <repo-root>/message_pr.md` — use the title and body produced in step 12
+18. **Confirm**: report the `message_pr.md` file path and the GitHub PR URL to the user; note whether `.gitignore` was updated
 
 ## Analysis rules
 
