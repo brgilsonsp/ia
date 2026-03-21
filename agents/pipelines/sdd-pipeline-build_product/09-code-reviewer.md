@@ -20,9 +20,14 @@ You review code — you do not rewrite it. You report findings — you do not fi
 - **Prerequisite**: All Phase 2 implementation batches are complete (confirmed by Orchestrator in `docs/progress.md`)
 - **Inputs** (read-only):
   - `docs/specs/requirements.md` — acceptance criteria to verify
-  - `docs/specs/design.md` — architecture, API contracts, and schema to verify against
+  - `docs/specs/design.md` — architecture, API contracts, schema, and infrastructure requirements to verify against
   - `src/` — all implementation code
   - `tests/` — all test code
+  - `infra/` — Docker files, compose files, and observability configuration (if present)
+  - `docs/security/` — permission matrix, LGPD data map, Key Vault secrets list, and security findings (if present)
+  - `docs/adr/` — Architecture Decision Records (if present)
+  - `docs/guides/` — integration guides and onboarding (if present)
+  - `docs/runbooks/` — operational runbooks (if present)
   - `docs/progress.md` — Orchestrator's execution log (for known issues)
 - **Output**: `docs/review.md` — structured review report
 - **Gate**: Your output is reviewed by a human (Gate 4) who decides what to fix before integration
@@ -32,7 +37,7 @@ You review code — you do not rewrite it. You report findings — you do not fi
 
 # TASK
 
-Review all code in `src/` and `tests/` and produce `docs/review.md` containing:
+Review all code in `src/`, `tests/`, and `infra/` and produce `docs/review.md` containing:
 
 1. For each issue found: severity, location, description, expected behavior (from spec), and fix recommendation
 2. A list of items that were reviewed and approved (no issues found)
@@ -70,7 +75,9 @@ Perform the review in four passes:
 For each RF-XXX in `requirements.md`:
 - Find the implementing code
 - Verify each acceptance criterion has been addressed in code
-- Verify each acceptance criterion has a corresponding test
+- Verify each acceptance criterion has a corresponding test (unit or integration)
+- Verify each RNF-XXX with a concrete performance threshold has a corresponding load test in `tests/load/`
+- Verify consumer-provider contracts exist in `tests/contract/` for all frontend/mobile → backend interactions defined in `design.md`
 
 ### Pass 2: API Contract Compliance
 For each endpoint in `design.md`:
@@ -92,6 +99,32 @@ For each table in `design.md`:
 - Verify no sensitive data (passwords, tokens, PII) is logged
 - Verify code follows conventions in `CLAUDE.md` (naming, comments, structure)
 - Verify all TypeScript types are explicit (no implicit `any` in frontend)
+
+### Pass 5: Security and LGPD Compliance (if `[security]` tasks were executed)
+- Verify JWT filter validates signature, expiry, and issuer — and returns 401 with no detail on failure
+- Verify all protected endpoints have authentication enforced in `SecurityFilterChain`
+- Verify RBAC/ABAC rules match the permission matrix in `docs/security/permission-matrix.md`
+- Verify no hardcoded secrets, keys, or passwords in any `.java`, `.yml`, or `.properties` file
+- Verify CORS policy does not use `allowedOrigins("*")` on authenticated endpoints
+- Verify security headers are configured (HSTS, X-Frame-Options, X-Content-Type-Options, CSP)
+- Verify LGPD: personal data fields match `docs/security/lgpd-data-map.md`; consent and data subject right endpoints exist if required by `design.md`
+- Verify rate limiting returns `429` with `Retry-After` header
+
+### Pass 6: Documentation Compliance (if `[docs]` tasks were executed)
+- Verify OpenAPI annotations cover all endpoints defined in `design.md` (no undocumented endpoints)
+- Verify every `@ApiResponse` in annotations matches the status codes in `design.md` — no invented codes
+- Verify ADRs exist for every architectural decision listed in `design.md` Section 1 (Architecture Decisions)
+- Verify integration guides use request/response shapes that exactly match `design.md` API contracts
+- Verify no documentation contains `[Unconfirmed]` items left unresolved (flag each as P2)
+- Verify no documentation contains realistic personal data examples (real-format CPFs, real emails)
+
+### Pass 7: Infrastructure Compliance (if `infra/` exists)
+- Verify Dockerfiles use multi-stage builds and non-root users
+- Verify Docker image tags are pinned — no `latest` tags
+- Verify `docker-compose.yml` uses environment variable references — no hardcoded secrets
+- Verify `.env.example` documents all variables used in `docker-compose.yml`
+- Verify all stateful services have `healthcheck` defined
+- Verify no real secrets appear in any committed file (`.env`, `.yml`, `.properties`, `.xml`)
 
 ## Step 4 — Self-validate before writing
 
@@ -195,7 +228,7 @@ Never classify a hypothesis as a confirmed P0 or P1.
 | Severity | Criteria |
 |----------|----------|
 | **P0 — Blocker** | Acceptance criterion unmet; wrong status code; missing authentication on protected endpoint; data loss risk in migration; critical security vulnerability |
-| **P1 — Major** | Incorrect response shape; missing error handling for defined error cases; missing required index; test coverage below 80% for a module |
+| **P1 — Major** | Incorrect response shape; missing error handling for defined error cases; missing required index; test coverage below 80% for a module; load test threshold value not sourced from `design.md`; Pact interaction name mismatch between consumer and provider |
 | **P2 — Minor** | Naming convention violation; missing JSDoc on exported function; style inconsistency defined in CLAUDE.md; non-critical improvement |
 
 Do NOT escalate a P2 to P1 or P0 based on personal judgment.

@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise Crítica: SDD com IA — Claude vs OpenSpec vs Spec Kit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f2eb;
+    --cream: #ede9de;
+    --accent: #c84b00;
+    --accent2: #1a6b3c;
+    --accent3: #1c3f7a;
+    --muted: #7a7268;
+    --rule: #d6d0c2;
+    --claude: #c84b00;
+    --openspec: #1c3f7a;
+    --speckit: #1a6b3c;
+    --warn: #b8860b;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 3.5rem 4rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 38%;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 8px,
+      rgba(255,255,255,.04) 8px,
+      rgba(255,255,255,.04) 9px
+    );
+  }
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    line-height: 1.05;
+    max-width: 820px;
+    margin-bottom: 1.4rem;
+  }
+  header h1 em {
+    font-style: italic;
+    color: #f0b87a;
+  }
+  .header-meta {
+    display: flex;
+    gap: 2.5rem;
+    font-size: .75rem;
+    color: rgba(245,242,235,.55);
+    letter-spacing: .08em;
+    flex-wrap: wrap;
+  }
+  .header-meta span { border-left: 2px solid var(--accent); padding-left: .7rem; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 2.5rem; }
+  main { padding: 4rem 2.5rem; max-width: 1080px; margin: 0 auto; }
+  section { margin-bottom: 4.5rem; }
+
+  /* ── SECTION TITLES ── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    color: var(--accent);
+    background: rgba(200,75,0,.1);
+    padding: .2rem .5rem;
+    border-radius: 3px;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    margin-bottom: 1.1rem;
+    line-height: 1.2;
+  }
+
+  p { margin-bottom: 1rem; font-size: .92rem; }
+
+  /* ── TOOL CARDS ── */
+  .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+
+  .tool-card {
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    transition: box-shadow .2s;
+  }
+  .tool-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,.1); }
+
+  .tool-card-header {
+    padding: 1.4rem 1.6rem 1rem;
+    border-bottom: 3px solid;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .tool-card.claude .tool-card-header { border-color: var(--claude); background: rgba(200,75,0,.04); }
+  .tool-card.openspec .tool-card-header { border-color: var(--openspec); background: rgba(28,63,122,.04); }
+  .tool-card.speckit .tool-card-header { border-color: var(--speckit); background: rgba(26,107,60,.04); }
+
+  .tool-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+  }
+  .tool-card.claude .tool-name { color: var(--claude); }
+  .tool-card.openspec .tool-name { color: var(--openspec); }
+  .tool-card.speckit .tool-name { color: var(--speckit); }
+
+  .tool-badge {
+    font-size: .65rem;
+    font-family: 'DM Mono', monospace;
+    padding: .25rem .55rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    white-space: nowrap;
+  }
+  .badge-platform { background: rgba(200,75,0,.12); color: var(--claude); }
+  .badge-framework { background: rgba(28,63,122,.12); color: var(--openspec); }
+  .badge-toolkit { background: rgba(26,107,60,.12); color: var(--speckit); }
+
+  .tool-card-body { padding: 1.4rem 1.6rem; }
+  .tool-desc { font-size: .85rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    padding: .2rem .55rem;
+    border-radius: 3px;
+    background: var(--cream);
+    color: var(--muted);
+    border: 1px solid var(--rule);
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 1.5rem;
+    background: white;
+  }
+  .stat-item {
+    padding: 1.1rem 1.4rem;
+    border-right: 1px solid var(--rule);
+    text-align: center;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    display: block;
+    line-height: 1;
+    margin-bottom: .3rem;
+  }
+  .stat-val.cl { color: var(--claude); }
+  .stat-val.os { color: var(--openspec); }
+  .stat-val.sk { color: var(--speckit); }
+  .stat-lbl { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+
+  /* ── COMPARISON TABLE ── */
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: .82rem; background: white; border-radius: 6px; overflow: hidden; border: 1px solid var(--rule); }
+  .cmp-table th {
+    padding: .9rem 1.1rem;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: .7rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .cmp-table th:nth-child(2) { color: #f0b87a; }
+  .cmp-table th:nth-child(3) { color: #8db4ff; }
+  .cmp-table th:nth-child(4) { color: #7ddfab; }
+  .cmp-table td { padding: .85rem 1.1rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table tr:nth-child(even) td { background: rgba(0,0,0,.015); }
+  .cmp-table .row-label { font-family: 'Syne', sans-serif; font-weight: 600; font-size: .8rem; color: var(--ink); }
+
+  .pill {
+    display: inline-block;
+    padding: .18rem .6rem;
+    border-radius: 20px;
+    font-size: .7rem;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+  }
+  .p-green { background: rgba(26,107,60,.12); color: var(--accent2); }
+  .p-orange { background: rgba(200,75,0,.12); color: var(--accent); }
+  .p-blue { background: rgba(28,63,122,.12); color: var(--accent3); }
+  .p-gray { background: var(--cream); color: var(--muted); }
+  .p-yellow { background: rgba(184,134,11,.12); color: var(--warn); }
+
+  /* ── SCORING ── */
+  .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+  .score-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .score-card-head {
+    padding: 1rem 1.4rem .7rem;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .score-card-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .9rem; }
+  .score-total {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+  }
+  .score-card.cl .score-total { color: var(--claude); }
+  .score-card.os .score-total { color: var(--openspec); }
+  .score-card.sk .score-total { color: var(--speckit); }
+
+  .score-rows { padding: .6rem 0; }
+  .score-row { padding: .45rem 1.4rem; display: flex; justify-content: space-between; align-items: center; }
+  .score-row-name { font-size: .75rem; color: var(--muted); }
+  .score-row-bar-wrap { flex: 1; margin: 0 1rem; height: 5px; background: var(--cream); border-radius: 3px; overflow: hidden; }
+  .score-row-bar { height: 100%; border-radius: 3px; }
+  .cl .score-row-bar { background: var(--claude); }
+  .os .score-row-bar { background: var(--openspec); }
+  .sk .score-row-bar { background: var(--speckit); }
+  .score-row-num { font-family: 'DM Mono', monospace; font-size: .72rem; font-weight: 500; min-width: 1.5rem; text-align: right; }
+
+  /* ── VERDICT ── */
+  .verdict-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+  @media (max-width: 640px) { .verdict-grid { grid-template-columns: 1fr; } }
+
+  .verdict-card {
+    border-radius: 6px;
+    padding: 1.5rem 1.8rem;
+    border: 1px solid var(--rule);
+    background: white;
+  }
+  .verdict-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: .95rem;
+    margin-bottom: .9rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+  .verdict-card .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .verdict-card ul { list-style: none; padding: 0; }
+  .verdict-card li { font-size: .82rem; color: var(--muted); padding: .35rem 0; border-bottom: 1px solid var(--cream); }
+  .verdict-card li:last-child { border-bottom: none; }
+  .verdict-card li::before { content: '→ '; color: var(--accent); font-weight: 600; }
+
+  /* ── RECOMMENDATION BOX ── */
+  .rec-box {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 8px;
+    padding: 2.5rem 2.8rem;
+    margin-top: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .rec-box::after {
+    content: '"';
+    font-family: 'Instrument Serif', serif;
+    font-size: 18rem;
+    position: absolute;
+    right: -1rem;
+    bottom: -4rem;
+    opacity: .05;
+    line-height: 1;
+    color: white;
+  }
+  .rec-box h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: #f0b87a;
+  }
+  .rec-box p { font-size: .88rem; color: rgba(245,242,235,.75); max-width: 72ch; }
+  .rec-box strong { color: var(--paper); }
+  .rec-list { list-style: none; padding: 0; margin-top: 1.2rem; }
+  .rec-list li { font-size: .85rem; color: rgba(245,242,235,.75); padding: .5rem 0; border-top: 1px solid rgba(255,255,255,.07); display: flex; gap: .8rem; }
+  .rec-list li:first-child { border-top: none; }
+  .rec-list .rec-icon { color: #f0b87a; flex-shrink: 0; }
+
+  /* ── ALERT ── */
+  .alert {
+    border-left: 3px solid var(--warn);
+    background: rgba(184,134,11,.07);
+    padding: 1rem 1.4rem;
+    border-radius: 0 4px 4px 0;
+    margin: 1.5rem 0;
+    font-size: .84rem;
+  }
+  .alert strong { color: var(--warn); font-family: 'Syne', sans-serif; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--rule);
+    padding: 2rem 2.5rem;
+    font-size: .72rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 2.5rem 1.5rem 2rem; }
+    main { padding: 2.5rem 1.5rem; }
+    .stats-bar { grid-template-columns: 1fr; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--rule); }
+    .stat-item:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Análise Crítica de Ferramentas · SDD com IA · Março 2026</div>
+  <h1>Pipeline <em>Spec-Driven</em><br>qual ferramenta escolher?</h1>
+  <div class="header-meta">
+    <span>Claude Ecosystem vs OpenSpec vs Spec Kit</span>
+    <span>Critério: produtividade em SDD com IA</span>
+    <span>Perspectiva: equipes de produto digital</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1. CONTEXTO -->
+  <section>
+    <div class="section-title"><span class="section-num">01</span> Por que essa comparação importa</div>
+    <h2>SDD não é metodologia nova — mas a execução com IA muda tudo</h2>
+    <p>Spec-Driven Development (SDD) existe há décadas como princípio: alinhar o "quê" antes de codificar o "como". O que mudou em 2024–2026 é que agentes de IA passaram a ser capazes de consumir, gerar e executar specs diretamente — tornando o processo viável sem uma equipe de BA dedicada.</p>
+    <p>O desafio agora é escolher a camada de orquestração certa. A confusão mais comum é tratar as opções como mutuamente exclusivas. Na prática, elas vivem em níveis diferentes da stack: <strong>Claude Code/Team/Cowork</strong> é a plataforma de IA, <strong>OpenSpec</strong> e <strong>Spec Kit</strong> são frameworks que rodam <em>sobre</em> essa plataforma.</p>
+
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-val cl">23.8k</span>
+        <div class="stat-lbl">Stars · OpenSpec</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val sk">68.8k</span>
+        <div class="stat-lbl">Stars · Spec Kit</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val os">20+</span>
+        <div class="stat-lbl">Agentes suportados por ambos</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. PERFIS -->
+  <section>
+    <div class="section-title"><span class="section-num">02</span> Perfil de cada ferramenta</div>
+
+    <div class="tool-grid">
+
+      <div class="tool-card claude">
+        <div class="tool-card-header">
+          <div>
+            <div class="tool-name">Claude Ecosystem</div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:.3rem;">Code · Cowork · Team · API</div>
+          </div>
+          <span class="tool-badge badge-platform">Plataforma</span>
+        </div>
+        <div class="tool-card-body">
+          <p class="tool-desc">Conjunto de produtos da Anthropic que entregam o modelo Claude em diferentes interfaces: terminal agentic (Code), colaboração no desktop (Cowork), uso em equipe (Team) e acesso programático (API). É a <em>camada de execução</em>, não o framework de processo.</p>
+          <div class="tag-row">
+            <span class="tag">Claude Code (CLI agentic)</span>
+            <span class="tag">Cowork (desktop)</span>
+            <span class="tag">Team (multi-usuário)</span>
+            <span class="tag">MCP integrado</span>
+            <span class="tag">Opus 4.6 / Sonnet 4.6</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card openspec">
+        <div class="tool-card-header">
+          <div>
+            <div class="tool-name">OpenSpec</div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:.3rem;">Fission-AI · MIT · npm</div>
+          </div>
+          <span class="tool-badge badge-framework">Framework SDD</span>
+        </div>
+        <div class="tool-card-body">
+          <p class="tool-desc">Framework de SDD leve e iterativo, instalado via npm globalmente. Usa slash commands (<code>/opsx:new</code>, <code>/opsx:ff</code>, <code>/opsx:apply</code>) para orquestrar um ciclo: proposta → specs → design → tasks → implementação → arquivo. Filosofia: fluido, não rígido.</p>
+          <div class="tag-row">
+            <span class="tag">npm global</span>
+            <span class="tag">slash commands</span>
+            <span class="tag">brownfield-first</span>
+            <span class="tag">20+ agentes</span>
+            <span class="tag">dashboard web</span>
+            <span class="tag">TypeScript</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card speckit">
+        <div class="tool-card-header">
+          <div>
+            <div class="tool-name">Spec Kit</div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:.3rem;">GitHub · MIT · Python/uv</div>
+          </div>
+          <span class="tool-badge badge-toolkit">Toolkit SDD</span>
+        </div>
+        <div class="tool-card-body">
+          <p class="tool-desc">Toolkit de SDD criado pelo GitHub, com foco em rigor e fases bem definidas. Instala via <code>uv</code> (Python), provê CLI <code>specify</code> e comandos <code>/speckit.*</code> que cobrem: constitution → specify → clarify → plan → tasks → implement. Fortemente documentado e orientado a times enterprise.</p>
+          <div class="tag-row">
+            <span class="tag">Python / uv</span>
+            <span class="tag">specify CLI</span>
+            <span class="tag">constitution.md</span>
+            <span class="tag">18+ agentes</span>
+            <span class="tag">fase gates</span>
+            <span class="tag">enterprise-ready</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. COMPARAÇÃO DETALHADA -->
+  <section>
+    <div class="section-title"><span class="section-num">03</span> Comparação dimensão a dimensão</div>
+
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th style="width:22%">Dimensão</th>
+          <th>Claude Ecosystem</th>
+          <th>OpenSpec</th>
+          <th>Spec Kit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">Natureza</td>
+          <td><span class="pill p-orange">Plataforma de IA</span></td>
+          <td><span class="pill p-blue">Framework SDD</span></td>
+          <td><span class="pill p-green">Toolkit SDD</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">Lock-in de modelo</td>
+          <td><span class="pill p-orange">Alto (só Claude)</span></td>
+          <td><span class="pill p-green">Nenhum (agnóstico)</span></td>
+          <td><span class="pill p-green">Nenhum (agnóstico)</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">Lock-in de IDE/agente</td>
+          <td>Depende do produto: Code = terminal; Cowork = desktop</td>
+          <td><span class="pill p-green">Nenhum (20+ agentes)</span></td>
+          <td><span class="pill p-green">Nenhum (18+ agentes)</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">Curva de entrada</td>
+          <td><span class="pill p-green">Baixa</span> — chat imediato</td>
+          <td><span class="pill p-green">Baixa</span> — npm install + init</td>
+          <td><span class="pill p-yellow">Média</span> — Python/uv + fases</td>
+        </tr>
+        <tr>
+          <td class="row-label">Rigor de processo</td>
+          <td><span class="pill p-orange">Depende do usuário</span> — sem guardrails nativos</td>
+          <td><span class="pill p-yellow">Médio</span> — fluido por design</td>
+          <td><span class="pill p-green">Alto</span> — fases ordenadas, constitution</td>
+        </tr>
+        <tr>
+          <td class="row-label">Suporte brownfield</td>
+          <td><span class="pill p-green">Excelente</span> via Code + MCP</td>
+          <td><span class="pill p-green">Explícito na filosofia</span></td>
+          <td><span class="pill p-yellow">Suportado</span>, foco maior em greenfield</td>
+        </tr>
+        <tr>
+          <td class="row-label">Memória / contexto</td>
+          <td>Sem memória cross-session nativa no Code; Cowork tem mais</td>
+          <td>Artefatos em disco por change; <code>/opsx:archive</code></td>
+          <td><code>constitution.md</code> + pastas <code>.specify/</code> persistem contexto</td>
+        </tr>
+        <tr>
+          <td class="row-label">Trabalho em equipe</td>
+          <td><span class="pill p-green">Claude Team</span> — planos multi-usuário</td>
+          <td><span class="pill p-yellow">Email para Slack privado</span> — incipiente</td>
+          <td><span class="pill p-green">Git-native</span> — branches por feature, PRs</td>
+        </tr>
+        <tr>
+          <td class="row-label">Rastreabilidade</td>
+          <td><span class="pill p-orange">Baixa</span> — histórico de chat</td>
+          <td><span class="pill p-yellow">Média</span> — artefatos por change</td>
+          <td><span class="pill p-green">Alta</span> — spec.md, plan.md, tasks.md versionados</td>
+        </tr>
+        <tr>
+          <td class="row-label">Auditoria / compliance</td>
+          <td><span class="pill p-orange">Fraco</span> sem integração extra</td>
+          <td><span class="pill p-yellow">Médio</span> — artefatos locais</td>
+          <td><span class="pill p-green">Forte</span> — git log como trilha de auditoria</td>
+        </tr>
+        <tr>
+          <td class="row-label">Custo</td>
+          <td>Pago (Pro/Team/Enterprise)</td>
+          <td>MIT free — paga o modelo</td>
+          <td>MIT free — paga o modelo</td>
+        </tr>
+        <tr>
+          <td class="row-label">Maturidade</td>
+          <td><span class="pill p-green">Alta</span> — produto comercial</td>
+          <td><span class="pill p-yellow">Média</span> — v1.1, 23k stars, evoluindo rápido</td>
+          <td><span class="pill p-green">Alta</span> — 68k stars, GitHub-backed, v0.0.93</td>
+        </tr>
+        <tr>
+          <td class="row-label">Integra com CI/CD</td>
+          <td>Via API ou Claude Code em pipelines</td>
+          <td>Pode rodar em CI (npm run)</td>
+          <td><span class="pill p-green">GitHub Actions nativo</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. PONTUAÇÃO -->
+  <section>
+    <div class="section-title"><span class="section-num">04</span> Scorecard por perfil de uso</div>
+    <p style="font-size:.84rem;color:var(--muted);margin-bottom:1.2rem;">Escala 1–10 por dimensão. <em>Nota: comparação só faz sentido após definir seu contexto — veja recomendação abaixo.</em></p>
+
+    <div class="score-grid">
+
+      <div class="score-card cl">
+        <div class="score-card-head">
+          <span class="score-card-name">Claude Code + Team</span>
+          <span class="score-total">—</span>
+        </div>
+        <div class="score-rows">
+          <div class="score-row"><span class="score-row-name">Velocidade de início</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:95%"></div></div><span class="score-row-num">9.5</span></div>
+          <div class="score-row"><span class="score-row-name">Qualidade do modelo</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:95%"></div></div><span class="score-row-num">9.5</span></div>
+          <div class="score-row"><span class="score-row-name">Flexibilidade de tarefa</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:90%"></div></div><span class="score-row-num">9.0</span></div>
+          <div class="score-row"><span class="score-row-name">Rigor de processo SDD</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:30%"></div></div><span class="score-row-num">3.0</span></div>
+          <div class="score-row"><span class="score-row-name">Rastreabilidade</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:35%"></div></div><span class="score-row-num">3.5</span></div>
+          <div class="score-row"><span class="score-row-name">Independência de vendor</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:20%"></div></div><span class="score-row-num">2.0</span></div>
+        </div>
+      </div>
+
+      <div class="score-card os">
+        <div class="score-card-head">
+          <span class="score-card-name">OpenSpec</span>
+          <span class="score-total">—</span>
+        </div>
+        <div class="score-rows">
+          <div class="score-row"><span class="score-row-name">Velocidade de início</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:85%"></div></div><span class="score-row-num">8.5</span></div>
+          <div class="score-row"><span class="score-row-name">Qualidade do modelo</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:90%"></div></div><span class="score-row-num">9.0†</span></div>
+          <div class="score-row"><span class="score-row-name">Flexibilidade de tarefa</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:75%"></div></div><span class="score-row-num">7.5</span></div>
+          <div class="score-row"><span class="score-row-name">Rigor de processo SDD</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:70%"></div></div><span class="score-row-num">7.0</span></div>
+          <div class="score-row"><span class="score-row-name">Rastreabilidade</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:65%"></div></div><span class="score-row-num">6.5</span></div>
+          <div class="score-row"><span class="score-row-name">Independência de vendor</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:90%"></div></div><span class="score-row-num">9.0</span></div>
+        </div>
+      </div>
+
+      <div class="score-card sk">
+        <div class="score-card-head">
+          <span class="score-card-name">Spec Kit</span>
+          <span class="score-total">—</span>
+        </div>
+        <div class="score-rows">
+          <div class="score-row"><span class="score-row-name">Velocidade de início</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:65%"></div></div><span class="score-row-num">6.5</span></div>
+          <div class="score-row"><span class="score-row-name">Qualidade do modelo</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:90%"></div></div><span class="score-row-num">9.0†</span></div>
+          <div class="score-row"><span class="score-row-name">Flexibilidade de tarefa</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:80%"></div></div><span class="score-row-num">8.0</span></div>
+          <div class="score-row"><span class="score-row-name">Rigor de processo SDD</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:90%"></div></div><span class="score-row-num">9.0</span></div>
+          <div class="score-row"><span class="score-row-name">Rastreabilidade</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:88%"></div></div><span class="score-row-num">8.8</span></div>
+          <div class="score-row"><span class="score-row-name">Independência de vendor</span><div class="score-row-bar-wrap"><div class="score-row-bar" style="width:90%"></div></div><span class="score-row-num">9.0</span></div>
+        </div>
+      </div>
+
+    </div>
+    <p style="font-size:.72rem;color:var(--muted);margin-top:.8rem;">† Qualidade do modelo depende de qual agente é conectado. OpenSpec e Spec Kit são agnósticos — a nota 9 assume uso com Claude Sonnet/Opus ou equivalente.</p>
+  </section>
+
+  <!-- 5. ONDE CADA UM BRILHA -->
+  <section>
+    <div class="section-title"><span class="section-num">05</span> Onde cada ferramenta brilha (e onde decepciona)</div>
+
+    <div class="verdict-grid">
+
+      <div class="verdict-card">
+        <h3><span class="dot" style="background:var(--claude)"></span> Claude Code — pontos fortes</h3>
+        <ul>
+          <li>Execução agentic de ponta no terminal com acesso ao filesystem</li>
+          <li>MCP nativo: conecta Jira, Slack, GitHub, Gmail em um fluxo</li>
+          <li>Qualidade de raciocínio e código de Sonnet 4.6 e Opus 4.6</li>
+          <li>Melhor opção para devs solitários ou squads pequenos que já usam Anthropic</li>
+          <li>Cowork para não-devs: automação de arquivos e tarefas sem código</li>
+        </ul>
+      </div>
+
+      <div class="verdict-card">
+        <h3><span class="dot" style="background:var(--claude)"></span> Claude Code — pontos fracos</h3>
+        <ul>
+          <li>Zero estrutura de SDD nativa — cada dev inventa seu próprio processo</li>
+          <li>Sem rastreabilidade formal de specs: decisões ficam no chat</li>
+          <li>Vendor lock-in total em Claude/Anthropic</li>
+          <li>Sem suporte a múltiplos modelos em paralelo</li>
+          <li>Custo recorrente mesmo para projetos simples</li>
+        </ul>
+      </div>
+
+      <div class="verdict-card">
+        <h3><span class="dot" style="background:var(--openspec)"></span> OpenSpec — pontos fortes</h3>
+        <ul>
+          <li>Onboarding de 5 minutos: <code>npm i -g @fission-ai/openspec && openspec init</code></li>
+          <li>Ciclo completo de change: proposta → spec → design → tasks → apply → archive</li>
+          <li>Filosofia brownfield-first: funciona em projetos existentes</li>
+          <li>Agnóstico de modelo: GPT, Gemini, Claude, etc.</li>
+          <li>Dashboard visual para acompanhar mudanças em andamento</li>
+        </ul>
+      </div>
+
+      <div class="verdict-card">
+        <h3><span class="dot" style="background:var(--openspec)"></span> OpenSpec — pontos fracos</h3>
+        <ul>
+          <li>Processo "fluido" pode virar "frouxo" sem disciplina de time</li>
+          <li>Suporte a times ainda incipiente (Slack channel via email)</li>
+          <li>Menos rastreabilidade que Spec Kit — artefatos podem se perder</li>
+          <li>Ainda evolui rápido: breaking changes entre versões</li>
+          <li>Pouca integração nativa com CI/CD e PRs</li>
+        </ul>
+      </div>
+
+      <div class="verdict-card">
+        <h3><span class="dot" style="background:var(--speckit)"></span> Spec Kit — pontos fortes</h3>
+        <ul>
+          <li>Rastreabilidade total: cada feature vira branch git + pasta <code>.specify/</code></li>
+          <li>Constitution.md como camada de governança persistente</li>
+          <li>Fases bem definidas evitam skips acidentais de etapas críticas</li>
+          <li>Nativo ao GitHub: PRs, Actions, Copilot integram sem fricção</li>
+          <li>68k stars e backing da GitHub: longevidade praticamente garantida</li>
+        </ul>
+      </div>
+
+      <div class="verdict-card">
+        <h3><span class="dot" style="background:var(--speckit)"></span> Spec Kit — pontos fracos</h3>
+        <ul>
+          <li>Dependência de Python/uv pode ser barreira em times JS/mobile</li>
+          <li>Fase gates rígidas frustram devs em modo exploratório</li>
+          <li>Overhead real para features pequenas ou proofs-of-concept</li>
+          <li>Menos fluído em brownfield vs. projetos greenfield puros</li>
+          <li>Curva maior para não-desenvolvedores</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 6. ARMADILHA CONCEITUAL -->
+  <section>
+    <div class="section-title"><span class="section-num">06</span> A armadilha conceitual mais comum</div>
+    <div class="alert">
+      <strong>⚠ Atenção:</strong> A comparação "Claude vs OpenSpec vs Spec Kit" é, na maioria dos casos, uma <em>falsa dicotomia</em>. Claude Code é a engine; OpenSpec e Spec Kit são o processo. Você pode — e provavelmente deveria — usar <strong>Spec Kit + Claude Code</strong> ou <strong>OpenSpec + Claude Code</strong> juntos.
+    </div>
+    <p>O que você está realmente escolhendo é: <strong>(a)</strong> qual framework de processo SDD adotar, e <strong>(b)</strong> qual modelo/plataforma de IA executar esse processo. São decisões independentes.</p>
+  </section>
+
+  <!-- 7. RECOMENDAÇÃO -->
+  <section>
+    <div class="section-title"><span class="section-num">07</span> Recomendação crítica por perfil</div>
+
+    <div class="rec-box">
+      <h3>Análise Final</h3>
+      <p>Não existe "melhor ferramenta" universal. O critério decisivo é o <strong>tamanho e maturidade do seu time</strong> e <strong>quão crítica é a rastreabilidade</strong> para o seu contexto.</p>
+
+      <ul class="rec-list">
+        <li>
+          <span class="rec-icon">▸</span>
+          <div><strong>Dev solo ou startup early-stage:</strong> Comece com <strong>Claude Code + OpenSpec</strong>. Instalação rápida, ciclo fluido, sem overhead. Use <code>/opsx:ff</code> para gerar proposta + specs em segundos. Adicione Spec Kit quando o time crescer.</div>
+        </li>
+        <li>
+          <span class="rec-icon">▸</span>
+          <div><strong>Equipe de produto (5–30 pessoas) com GitHub:</strong> <strong>Spec Kit + Claude Code</strong> é a combinação mais madura. A constitution.md cria alinhamento de time. As fases ordenadas evitam retrabalho. Os artefatos versionados no Git são a melhor forma de compliance sem burocracia.</div>
+        </li>
+        <li>
+          <span class="rec-icon">▸</span>
+          <div><strong>Enterprise com múltiplos LLMs ou restrições de fornecedor:</strong> <strong>Spec Kit</strong> como framework de processo, com liberdade de trocar o agente (Claude Code hoje, outro amanhã). OpenSpec também serve, mas Spec Kit tem governança mais robusta.</div>
+        </li>
+        <li>
+          <span class="rec-icon">▸</span>
+          <div><strong>Projetos brownfield ou legado:</strong> <strong>OpenSpec</strong> tem vantagem filosófica aqui — foi construído explicitamente para esse cenário, ao contrário do Spec Kit que é mais greenfield-oriented.</div>
+        </li>
+        <li>
+          <span class="rec-icon">▸</span>
+          <div><strong>Não-devs usando IA para automatizar tarefas:</strong> <strong>Claude Cowork</strong> (beta) é a única opção viável. OpenSpec e Spec Kit requerem terminal e git — não são adequados para esse perfil.</div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8. CONCLUSÃO -->
+  <section>
+    <div class="section-title"><span class="section-num">08</span> Conclusão objetiva</div>
+    <p>Se você precisa de <strong>velocidade e praticidade</strong> agora: <strong>OpenSpec + Claude Code</strong>. Se precisa de <strong>rastreabilidade e governança de time</strong>: <strong>Spec Kit + Claude Code</strong>. Se quer evitar <strong>vendor lock-in completo</strong>: use qualquer um dos frameworks open-source com o modelo de sua preferência.</p>
+    <p>O Claude Ecosystem sozinho, sem um framework SDD, é poderoso mas desestruturado — ótimo para exploração, problemático para entrega de produto consistente em equipe. A maturidade de um pipeline SDD com IA não está no modelo: está na <strong>disciplina de processo</strong> que o framework impõe.</p>
+  </section>
+
+</main>
+
+<footer>
+  <span>Análise elaborada com base nas documentações oficiais de OpenSpec v1.1 e Spec Kit v0.0.93 · Março 2026</span>
+  <span>Fontes: github.com/Fission-AI/OpenSpec · github.com/github/spec-kit · docs.claude.com</span>
+</footer>
+
+</body>
+</html>

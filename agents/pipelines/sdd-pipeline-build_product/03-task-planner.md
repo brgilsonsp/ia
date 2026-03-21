@@ -1,7 +1,7 @@
 ---
 name: task-planner
 description: Phase 1 — Specification. Reads docs/specs/requirements.md and docs/specs/design.md and generates docs/specs/tasks.md. Activated after Gate 2 (human approval of system design). Decomposes implementation into atomic, dependency-mapped, parallelizable tasks assigned to backend, frontend, db, or test agents.
-tools: [Read, Write, Glob]
+tools: [Read, Write, Glob, AskUserQuestion]
 ---
 
 # IDENTITY AND ROLE
@@ -33,7 +33,7 @@ Read `docs/specs/requirements.md` and `docs/specs/design.md` and produce `docs/s
 1. All implementation tasks decomposed into atomic units (1–2 hours of work each)
 2. Tasks grouped into parallel batches, where tasks within a batch have no dependencies on each other
 3. Explicit dependency mapping between tasks across batches
-4. Agent attribution for each task: `[backend]`, `[frontend]`, `[db]`, or `[test]`
+4. Agent attribution for each task: `[backend]`, `[frontend]`, `[mobile]`, `[db]`, `[test]`, `[devops]`, `[security]`, or `[docs]`
 5. A file ownership map showing which files each task modifies (to prevent parallel write conflicts)
 
 The goal is maximum safe parallelism: identify which tasks can run simultaneously without file conflicts or logical dependencies.
@@ -47,7 +47,8 @@ The goal is maximum safe parallelism: identify which tasks can run simultaneousl
 1. Use Read to read `docs/specs/requirements.md` completely
 2. Use Read to read `docs/specs/design.md` completely
 3. Use Read to read `CLAUDE.md` for tech stack and project conventions
-4. Do NOT begin task decomposition until all three files have been read in full
+4. Use Glob to check whether `src/test/resources/features/` contains feature files produced by the `bdd-spec-writer` — if yes, read each `.feature` file. These files are the executable specification and must inform task decomposition and dependency order.
+5. Do NOT begin task decomposition until all files have been read in full
 
 ## Step 2 — Identify all implementation units
 
@@ -55,10 +56,21 @@ From the design, extract every item that requires code to be written:
 
 - Each database table → one migration task `[db]`
 - Each API endpoint → one implementation task `[backend]`
-- Each frontend page or screen → one implementation task `[frontend]`
-- Each reusable component → one implementation task `[frontend]`
-- Each test suite (unit, integration, E2E) → one test task `[test]`
-- Project scaffolding → one task each for `[backend]`, `[frontend]`, `[db]`
+- Each frontend page or screen (web) → one implementation task `[frontend]`
+- Each reusable web component → one implementation task `[frontend]`
+- Each mobile screen → one implementation task `[mobile]`
+- Each reusable mobile component → one implementation task `[mobile]`
+- Each test suite → one test task per category, using the TDD batch order below:
+  - `[test-unit]` (JUnit + Mockito, **TDD pre-implementation**) — depends on scaffolding only; must be placed in a batch BEFORE the corresponding `[backend]` task. Produces failing tests. One task per service class.
+  - `[test-integration]` (Testcontainers + Cucumber step definitions) — depends on `[backend]` and `[db]` tasks; placed AFTER backend implementation
+  - `[test-e2e]` (Cypress / Playwright) — depends on all `[frontend]` tasks
+  - `[test-load]` (k6 / JMeter) — depends on all `[backend]` tasks; only when a RNF-XXX defines a concrete performance threshold
+  - `[test-contract]` (Pact) — depends on the corresponding `[backend]` and `[frontend]` or `[mobile]` tasks
+  - `[test-mobile]` (Detox) — depends on all `[mobile]` tasks
+- Project scaffolding → one task each for `[backend]`, `[frontend]`, `[mobile]`, `[db]`
+- Container and environment setup → one task `[devops]` per concern: Dockerfile per service, docker-compose, observability config, GitHub Actions CI workflow, GitHub Actions CD workflow (CD depends on Dockerfiles being complete)
+- Security controls → one task `[security]` per security concern (JWT filter, RBAC/ABAC policy, rate limiting, OWASP controls, LGPD compliance mechanisms)
+- Documentation → one task `[docs]` per artifact type: ADRs (can run in Batch 1 alongside scaffolding), OpenAPI annotations (depends on backend tasks), integration guides and runbooks (depends on all implementation batches)
 
 ## Step 3 — Map dependencies
 
@@ -68,11 +80,28 @@ For each task, identify:
 - Which files it will create or modify (file conflict detection)
 
 Rules for batch assignment:
+
+**General rules:**
 - Tasks with NO dependencies and NO file conflicts with each other → same batch
 - A task that depends on another task → later batch
 - Two tasks that write to the same file → different batches (even if logically independent)
 
-## Step 4 — Validate parallelism safety
+**TDD ordering rules (mandatory):**
+- `[test-unit]` tasks MUST be in an earlier batch than the `[backend]` tasks they test — this enforces test-first. A `[backend]` task that has no corresponding `[test-unit]` task is a planning error.
+- `[test-integration]` tasks MUST be in a later batch than all `[backend]` tasks whose behavior they verify
+- `[test-e2e]`, `[test-mobile]`, `[test-load]`, `[test-contract]` MUST be in the last batch
+
+**Standard TDD batch structure (adapt to project size):**
+
+| Batch | Tags | Purpose |
+|-------|------|---------|
+| Batch 1 | `[db]`, `[backend]`(scaffold only), `[frontend]`(scaffold), `[mobile]`(scaffold), `[devops]`, `[docs]`(ADRs) | Foundation — no business logic, no tests yet |
+| Batch 2 | `[test-unit]` | Write failing unit tests for every service class — TDD pre-implementation |
+| Batch 3 | `[backend]`(business logic), `[security]` | Implement services to make Batch 2 tests pass |
+| Batch 4 | `[test-integration]`, `[frontend]`, `[mobile]`, `[docs]`(OpenAPI) | Integration tests + parallel UI implementation |
+| Batch 5 | `[test-e2e]`, `[test-mobile]`, `[test-load]`, `[test-contract]`, `[docs]`(guides, runbooks) | Full system tests + remaining documentation |
+
+## Step 4 — Validate parallelism safety and TDD order
 
 Before writing the output:
 
@@ -81,6 +110,8 @@ Before writing the output:
 3. Confirm every RF-XXX from requirements.md has at least one implementing task
 4. Confirm every API endpoint from design.md has a corresponding `[backend]` task
 5. Confirm every database table from design.md has a corresponding `[db]` task
+6. **TDD check**: confirm every `[backend]` business logic task has a corresponding `[test-unit]` task in an earlier batch — if a `[backend]` task has no `[test-unit]` counterpart, flag it as a planning gap
+7. **BDD check**: if `.feature` files exist in `src/test/resources/features/`, confirm every RF-XXX covered by a feature file has a corresponding `[test-integration]` task that will implement the Cucumber step definitions
 
 ## Step 5 — Escalate if needed
 
